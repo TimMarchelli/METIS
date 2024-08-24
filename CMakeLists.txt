@@ -7,6 +7,11 @@ option(METIS_IDX64 "enable 64 bit ints" OFF)
 option(METIS_REAL64 "enable 64 bit floats (i.e., double)" On)
 option(METIS_BUILD_PROGRAMS "Build METIS programs" Off)
 
+# export all symbols
+if(BUILD_SHARED_LIBS)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()
+
 # get GKlib
 find_package(GKlib REQUIRED)
 
@@ -41,7 +46,6 @@ set_target_properties(metis PROPERTIES C_STANDARD 99)
 
 # set compiler defines
 target_compile_definitions(metis PRIVATE
-    _WINDLL
     $<$<PLATFORM_ID:Windows>: WIN32 USE_GKREGEX >
     $<$<PLATFORM_ID:Linux>: LINUX _FILE_OFFSET_BITS=64 >
     $<$<PLATFORM_ID:CYGWIN>: CYGWIN >
@@ -74,7 +78,8 @@ target_compile_options(metis PRIVATE
     # Clang options
     $<$<C_COMPILER_ID:Clang>: -Wno-deprecated-declarations 
         -Wno-implicit-function-declaration 
-        -Wno-format -Wno-format-invalid-specifier 
+        -Wno-format 
+        -Wno-format-invalid-specifier 
         -Wno-format-extra-args 
         -Wno-format-invalid-specifier 
         -Wno-deprecated-non-prototype 

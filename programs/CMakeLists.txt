@@ -8,48 +8,9 @@ add_executable(cmpfillin cmpfillin.c io.c smbfactor.c)
 
 # Link with the required libraries
 foreach(prog gpmetis ndmetis mpmetis m2gmetis graphchk cmpfillin)
-    # set compiler defines
-    target_compile_definitions(${prog} PRIVATE
-        $<$<PLATFORM_ID:Windows>: WIN32 USE_GKREGEX >
-        $<$<PLATFORM_ID:Linux>: LINUX _FILE_OFFSET_BITS=64 >
-        $<$<PLATFORM_ID:CYGWIN>: CYGWIN >
-        $<$<C_COMPILER_ID:MSVC>: MSC _CRT_SECURE_NO_DEPRECATE >
-        $<$<AND:$<BOOL:${HAVE_THREADLOCALSTORAGE}>,$<C_COMPILER_ID:MSVC>>: "__thread=__declspec(thread)" >
-        $<$<AND:$<NOT:$<BOOL:${HAVE_THREADLOCALSTORAGE}>>,$<C_COMPILER_ID:MSVC>>: __thread= >
-    )
 
-    # set warnings
-    target_compile_options(${prog} PRIVATE
-        # GNU options
-        $<$<C_COMPILER_ID:GNU>: -Werror
-            -Wall 
-            -pedantic 
-            -Wno-unused-function 
-            -Wno-unused-but-set-variable 
-            -Wno-unused-variable 
-            -Wno-unknown-pragmas 
-            -Wno-unused-label 
-            -Wno-int-to-pointer-cast
-            -Wno-pointer-to-int-cast
-            -Wno-maybe-uninitialized >
-
-        # Clang options
-        $<$<C_COMPILER_ID:Clang>: -Wno-deprecated-declarations 
-            -Wno-implicit-function-declaration 
-            -Wno-format 
-            -Wno-format-invalid-specifier 
-            -Wno-format-extra-args 
-            -Wno-format-invalid-specifier 
-            -Wno-deprecated-non-prototype 
-            -Wno-int-to-void-pointer-cast 
-            -Wno-void-pointer-to-int-cast 
-            -Wno-unused-variable 
-            -Wno-unused-function 
-            -Wno-unused-but-set-variable >
-
-        # MSVC options
-        $<$<C_COMPILER_ID:MSVC>: /wd4005 /wd4311 /wd4312 >
-    )
+    # set common options and warnings
+    ProjectCompilerSettings(${prog})
 
     target_link_libraries(${prog} metis GKlib::GKlib)
 
@@ -58,3 +19,34 @@ foreach(prog gpmetis ndmetis mpmetis m2gmetis graphchk cmpfillin)
     endif()
 
 endforeach(prog)
+
+# add some simple command line tools tests to verify functioning build
+add_test(NAME gpmetis
+    COMMAND gpmetis ${CMAKE_CURRENT_SOURCE_DIR}/../graphs/4elt.graph 4
+)
+
+add_test(NAME ndmetis
+    COMMAND ndmetis ${CMAKE_CURRENT_SOURCE_DIR}/../graphs/4elt.graph
+)
+
+add_test(NAME mpmetis
+    COMMAND mpmetis ${CMAKE_CURRENT_SOURCE_DIR}/../graphs/metis.mesh 4
+)
+
+add_test(NAME m2gmetis
+    COMMAND m2gmetis ${CMAKE_CURRENT_SOURCE_DIR}/../graphs/metis.mesh output.graph
+)
+
+add_test(NAME graphchk 
+    COMMAND graphchk ${CMAKE_CURRENT_SOURCE_DIR}/../graphs/4elt.graph
+)
+
+if(WIN32)
+    get_property(test_list DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
+
+    foreach(test ${test_list})
+        set_tests_properties(${test} PROPERTIES
+            ENVIRONMENT_MODIFICATION PATH=path_list_prepend:$<TARGET_FILE_DIR:metis>
+        )
+    endforeach()
+endif()

@@ -28,6 +28,9 @@ set(INSTALL_CONFIG_DIR  ${CMAKE_INSTALL_LIBDIR}/cmake/METIS)
 set(INSTALL_LIBRARY_DIR ${CMAKE_INSTALL_LIBDIR})
 set(INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 
+# include the compiler option macro
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ProjectCompilerSettings.cmake)
+
 # setup GKlib options
 include(${CMAKE_CURRENT_SOURCE_DIR}/conf/gkbuild.cmake)
 
@@ -44,54 +47,14 @@ add_library(metis ${metis_sources} ${metis_private_headers} ${metis_public_heade
 # set C standard to C99
 set_target_properties(metis PROPERTIES C_STANDARD 99)
 
-# set compiler defines
-target_compile_definitions(metis PRIVATE
-    $<$<PLATFORM_ID:Windows>: WIN32 USE_GKREGEX >
-    $<$<PLATFORM_ID:Linux>: LINUX _FILE_OFFSET_BITS=64 >
-    $<$<PLATFORM_ID:CYGWIN>: CYGWIN >
-    $<$<C_COMPILER_ID:MSVC>: MSC _CRT_SECURE_NO_DEPRECATE >
-    $<$<AND:$<BOOL:${HAVE_THREADLOCALSTORAGE}>,$<C_COMPILER_ID:MSVC>>: "__thread=__declspec(thread)" >
-    $<$<AND:$<NOT:$<BOOL:${HAVE_THREADLOCALSTORAGE}>>,$<C_COMPILER_ID:MSVC>>: __thread= >
-)
-
 # set compiler options
 target_compile_options(metis PRIVATE
     $<$<C_COMPILER_ID:GNU>:-fno-strict-aliasing>
     $<$<AND:$<PLATFORM_ID:Linux>,$<C_COMPILER_ID:GNU>>:-fPIC>
 )
 
-# set warnings
-target_compile_options(metis PRIVATE
-    # GNU options
-    $<$<C_COMPILER_ID:GNU>: -Werror
-        -Wall 
-        -pedantic 
-        -Wno-unused-function 
-        -Wno-unused-but-set-variable 
-        -Wno-unused-variable 
-        -Wno-unknown-pragmas 
-        -Wno-unused-label 
-        -Wno-int-to-pointer-cast
-        -Wno-pointer-to-int-cast
-        -Wno-maybe-uninitialized >
-
-    # Clang options
-    $<$<C_COMPILER_ID:Clang>: -Wno-deprecated-declarations 
-        -Wno-implicit-function-declaration 
-        -Wno-format 
-        -Wno-format-invalid-specifier 
-        -Wno-format-extra-args 
-        -Wno-format-invalid-specifier 
-        -Wno-deprecated-non-prototype 
-        -Wno-int-to-void-pointer-cast 
-        -Wno-void-pointer-to-int-cast 
-        -Wno-unused-variable 
-        -Wno-unused-function 
-        -Wno-unused-but-set-variable >
-
-    # MSVC options
-    $<$<C_COMPILER_ID:MSVC>: /wd4005 /wd4311 /wd4312 >
-)
+# set common options and warnings
+ProjectCompilerSettings(metis)
 
 # METIS' custom options
 if(IDX64)
@@ -128,7 +91,10 @@ set_target_properties(metis PROPERTIES
 )
 
 if(METIS_BUILD_PROGRAMS)
-    add_subdirectory("programs")
+    # include CTest here so tests appear
+    include(CTest)
+    
+    add_subdirectory(programs)
 endif()
 
 # set a project config file to enable linking to libraries in the build directory

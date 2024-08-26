@@ -41,13 +41,12 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/conf/gkbuild.cmake)
 
 # set source files
 file(GLOB metis_sources ${CMAKE_CURRENT_SOURCE_DIR}/libmetis/*.c)
-file(GLOB metis_private_headers ${CMAKE_CURRENT_SOURCE_DIR}/libmetis/*.h)
 
 # set public headers
 file(GLOB metis_public_headers ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 # add metis library
-add_library(metis ${metis_sources} ${metis_private_headers} ${metis_public_headers})
+add_library(metis ${metis_sources})
 
 # set C standard to C99
 set_target_properties(metis PROPERTIES C_STANDARD 99)

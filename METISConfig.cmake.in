@@ -6,7 +6,7 @@ get_filename_component(METIS_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 include(CMakeFindDependencyMacro)
 
 if(NOT TARGET METIS::metis)
-    include("${GKlib_CMAKE_DIR}/METIS-targets.cmake")
+    include("${METIS_CMAKE_DIR}/METIS-targets.cmake")
 endif()
 
 check_required_components(METIS)

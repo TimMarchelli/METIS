@@ -28,6 +28,11 @@ set(INSTALL_CONFIG_DIR  ${CMAKE_INSTALL_LIBDIR}/cmake/METIS)
 set(INSTALL_LIBRARY_DIR ${CMAKE_INSTALL_LIBDIR})
 set(INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 
+# rpath
+if(NOT APPLE)
+    set(CMAKE_INSTALL_RPATH $ORIGIN)
+endif()
+
 # include the compiler option macro
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ProjectCompilerSettings.cmake)
 
@@ -98,8 +103,8 @@ if(METIS_BUILD_PROGRAMS)
 endif()
 
 # set a project config file to enable linking to libraries in the build directory
-set(PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/METIS-config.cmake")
-configure_package_config_file(METIS-config.cmake.in
+set(PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/METISConfig.cmake")
+configure_package_config_file(METISConfig.cmake.in
   ${PROJECT_CONFIG_FILE}
   INSTALL_DESTINATION ${INSTALL_CONFIG_DIR}
 )

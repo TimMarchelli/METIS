@@ -104,8 +104,8 @@ endif()
 # set a project config file to enable linking to libraries in the build directory
 set(PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/METISConfig.cmake")
 configure_package_config_file(METISConfig.cmake.in
-  ${PROJECT_CONFIG_FILE}
-  INSTALL_DESTINATION ${INSTALL_CONFIG_DIR}
+    ${PROJECT_CONFIG_FILE}
+    INSTALL_DESTINATION ${INSTALL_CONFIG_DIR}
 )
 
 # install library

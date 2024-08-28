@@ -1,12 +1,9 @@
 @PACKAGE_INIT@
 
-# Include the exported CMake file
-get_filename_component(METIS_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-
 include(CMakeFindDependencyMacro)
 
 if(NOT TARGET METIS::metis)
-    include("${METIS_CMAKE_DIR}/METIS-targets.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/METIS-targets.cmake")
 endif()
 
 check_required_components(METIS)
